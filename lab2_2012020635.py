@@ -1,3 +1,4 @@
+from scipy.stats import truncnorm
 import numpy as np
 import time
 
@@ -5,33 +6,34 @@ import time
 # inicia el tiempo de ejecucion
 start_time = time.time()
 
-# Al usar numpy.random.normal,
-# puede pasar argumentos de palabras
-# clave para establecer la desviacion media
-# y estandar de su matriz devuelta.
-# Estos argumentos de palabras clave son loc (mean)
-# y escala (std).
-# instanciamos la cantidad de datos que se requiere
-N = 10000000
-# media
-mean = 500
-# escala
-std = 30
-# array que tendra todos los puntos
-puntos_de_distribucion = []
+# esta funcion genera los puntos dentro del rango requerido
+# y utilizando la media y escala requerida hacemos uso del import truncnorm
 
-# iniciar contador de puntos menores a 500000
-result = 0
+# genera el punto
 
-while len(puntos_de_distribucion) < N:
-    y = np.random.normal(loc=mean, scale=std, size=1)[0]
-    # llenar el array de source de los puntos de distribucion
-    puntos_de_distribucion.append(y)
-    # verificar que el numero sea menor a 50000
-    if y < 500:
-        result += y
 
+def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
+    return truncnorm(
+        (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
+
+
+# intancia la funcion para su uso
+X = get_truncated_normal(mean=500, sd=30, low=0, upp=500)
+# generamos los 10 millones de puntos de distribucion con la escala requerida y la media de igual forma
+points = X.rvs(10000000)
+a = np.array(points)
+
+
+def menor(numero):    # Primero declaramos una funcion condicional
+    if numero < 500:  # Comprobamos si un numero es multiple de cinco
+        return True
+
+
+r = filter(menor, a)
+# print(r)
+result = sum(r)
+
+# result = sum(x < 500 for x in a)
 # termina el tiempo de ejecucion
-
 print("--- %s seconds ---" % (time.time() - start_time))
 print("--- suma total: ", result)
